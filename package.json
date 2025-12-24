@@ -1,0 +1,17 @@
+{
+  "name": "sp500-notify",
+  "version": "1.0.0",
+  "description": "円建SP500投信の理論値をDiscordに通知",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
