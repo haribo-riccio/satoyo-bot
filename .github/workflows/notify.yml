@@ -2,7 +2,7 @@ name: SP500 Notify
 
 on:
   schedule:
-    - cron: '0 0 * * 1-5'  # 平日 UTC 0:00 = JST 9:00
+    - cron: '0 1 * * 1-5'  # 平日 UTC 1:00 = JST 10:00
   workflow_dispatch:        # 手動実行用
 
 jobs:
@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
