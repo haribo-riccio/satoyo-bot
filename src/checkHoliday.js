@@ -62,6 +62,30 @@ export function isUSMarketHoliday(dateStr) {
 }
 
 /**
+ * 前日の日付を取得（YYYY-MM-DD形式）
+ * @param {Date} date
+ * @returns {string}
+ */
+export function getPreviousDay(date) {
+  const prev = new Date(date);
+  prev.setDate(prev.getDate() - 1);
+  return prev.toISOString().split('T')[0];
+}
+
+/**
+ * 前日が米国市場休場日または週末かどうかをチェック
+ * @param {Date} date 本日の日付
+ * @returns {boolean}
+ */
+export function wasUSMarketClosedYesterday(date) {
+  const yesterday = new Date(date);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  return isWeekend(yesterday) || isUSMarketHoliday(yesterdayStr);
+}
+
+/**
  * 週末かどうかをチェック
  * @param {Date} date
  * @returns {boolean}
@@ -72,9 +96,10 @@ export function isWeekend(date) {
 }
 
 /**
- * 取引日かどうかをチェック（日本祝日・米国休場日・週末を除外）
+ * 取引日かどうかをチェック（日本市場の営業日かどうか）
+ * 日本の週末・祝日は基準価額が更新されないためスキップ
  * @param {Date} date
- * @returns {Promise<{isTradingDay: boolean, reason?: string}>}
+ * @returns {Promise<{isTradingDay: boolean, reason?: string, usMarketClosedYesterday?: boolean}>}
  */
 export async function checkTradingDay(date) {
   const dateStr = date.toISOString().split('T')[0];
@@ -83,13 +108,11 @@ export async function checkTradingDay(date) {
     return { isTradingDay: false, reason: '週末' };
   }
 
-  if (isUSMarketHoliday(dateStr)) {
-    return { isTradingDay: false, reason: '米国市場休場日' };
-  }
-
   if (await isJapaneseHoliday(dateStr)) {
     return { isTradingDay: false, reason: '日本の祝日' };
   }
 
-  return { isTradingDay: true };
+  const usMarketClosedYesterday = wasUSMarketClosedYesterday(date);
+
+  return { isTradingDay: true, usMarketClosedYesterday };
 }

@@ -28,19 +28,24 @@ export async function sendDiscord(message) {
  * @returns {string}
  */
 export function formatNotifyMessage(data) {
-  const { previous, current, dailyChange, ytdChange } = data;
+  const { previous, current, dailyChange, ytdChange, usMarketClosedYesterday } = data;
 
   const formatPercent = (value) => (value * 100).toFixed(2) + '%';
+
+  // 前日米国休場の場合、SP500は前々日終値を使用
+  const currentSp500Label = usMarketClosedYesterday ? '前々日SP500終値' : '前日SP500終値';
+  const previousSp500Label = usMarketClosedYesterday ? '3日前SP500終値' : '前々日 SP500終値';
+  const usClosedNote = usMarketClosedYesterday ? '\n※前日は米国市場休場' : '';
 
   return `【円建SP500投信 速報（理論値）】
 前日比：${formatPercent(dailyChange)}
 年始からの損益：${formatPercent(ytdChange)}
 
-前々日 SP500終値：${previous.sp500}
+${previousSp500Label}：${previous.sp500}
 前日TTM：${previous.ttm.toFixed(2)}
 
-前日SP500終値：${current.sp500}
-本日TTM：${current.ttm.toFixed(2)}`;
+${currentSp500Label}：${current.sp500}
+本日TTM：${current.ttm.toFixed(2)}${usClosedNote}`;
 }
 
 /**

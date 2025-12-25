@@ -43,7 +43,7 @@ async function main() {
   console.log(`Running for date: ${todayStr}`);
 
   // 取引日かチェック
-  const { isTradingDay, reason } = await checkTradingDay(today);
+  const { isTradingDay, reason, usMarketClosedYesterday } = await checkTradingDay(today);
 
   if (!isTradingDay) {
     console.log(`Not a trading day: ${reason}`);
@@ -51,10 +51,14 @@ async function main() {
     return;
   }
 
+  if (usMarketClosedYesterday) {
+    console.log('Note: US market was closed yesterday, using previous SP500 close');
+  }
+
   // データ取得
   console.log('Fetching S&P500...');
   const sp500 = await fetchSP500();
-  console.log(`S&P500: ${sp500}`);
+  console.log(`S&P500: ${sp500}${usMarketClosedYesterday ? ' (前々日終値)' : ''}`);
 
   console.log('Fetching TTM...');
   const { ttm } = await fetchTTM();
@@ -88,6 +92,7 @@ async function main() {
     current,
     dailyChange,
     ytdChange,
+    usMarketClosedYesterday,
   });
 
   console.log('Sending Discord notification...');
