@@ -67,8 +67,8 @@ async function main() {
   // 既存データ読み込み
   const data = loadData();
 
-  // 前日データを更新
-  const previous = { ...data.current };
+  // 前日データを更新（同じ日に複数回実行した場合は上書きしない）
+  const previous = data.current.date === todayStr ? data.previous : { ...data.current };
 
   // 当日データを更新
   const current = {
